@@ -1,24 +1,57 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, { useState, useEffect } from 'react';
+import DevItem from './components/DevItem/DevItem';
+import FormDev from './components/DevForm/DevForm';
+
+import api from './services/api';
+
+import './global.css';
 import './App.css';
+import './Sidebar.css';
+import './Main.css';
 
 function App() {
+  const [devs, setDevs] = useState([]);
+
+
+  useEffect(() => {
+    const loadDevs = async () => {
+      try {
+        const response = await api.get('/devs');
+        setDevs(response.data);
+      } catch(e) {
+        console.log(e);
+      }
+    }
+
+    loadDevs();
+  }, [])
+
+
+
+  const handleAddDev = async (data) => {
+    try {
+      const response = await api.post('/devs', data);
+      setDevs([ ...devs, response.data ]);
+    } catch(e) {
+      console.log(e);
+    }
+  }
+
+
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div id="app">
+      <aside>
+        <strong>Cadastrar</strong>
+        <FormDev onSubmit={handleAddDev} />
+      </aside>
+      <main>
+        <ul>
+          {devs.map((dev, i) => 
+            <DevItem key={i} dev={dev} />
+          )}
+        </ul>
+      </main>
     </div>
   );
 }
